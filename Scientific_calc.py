@@ -5,7 +5,7 @@ from os import replace #REPLACE
 from tkinter import * #GUI
 
 from tkinter import messagebox #MESSAGE BOXES
-
+ 
 import math as m #MATHS MODULE
 
 import threading #THREADING
@@ -106,6 +106,7 @@ def voiceoperated_calc_click():
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
     engine.setProperty('voice',voices[1].id)
+    global command
     try:
         with sr.Microphone() as source:
                 print('Speak Noww!!!!')
@@ -117,9 +118,9 @@ def voiceoperated_calc_click():
                 engine.say(command)
                 engine.runAndWait()
 
+
                 if 'what is' in command:
                     command = command.replace('what is','')
-
                 if 'into'  in command:
                     command = command.replace('into','*')
                 elif 'x'  in command:
@@ -127,8 +128,7 @@ def voiceoperated_calc_click():
                 elif 'X'  in command:
                     command = command.replace('X','*')               
                 
-                
-                if 'sin' in command:
+                if 'sin' in command:   
                     command=command.replace('sin','')
                     torad = m.radians(float(command))
                     answer = m.sin(float(torad))
@@ -194,8 +194,8 @@ def voiceoperated_calc_click():
                     mainbox.insert(END, answer)
                     return                
 
-                elif 'combinations' in command:
-                    n,r = command.split('combinations')
+                elif 'combination' in command:
+                    n,r = command.split('combination')
                     answer = m.comb(int(n),int(r))
                     engine.say("is equal to, {0}".format(answer))
                     engine.runAndWait()
@@ -203,8 +203,8 @@ def voiceoperated_calc_click():
                     mainbox.insert(END, answer)
                     return
 
-                elif 'p' in command:
-                    n,r = command.split('p')
+                elif 'permutation' in command:
+                    n,r = command.split('permutation')
                     answer = m.perm(int(n),int(r))
                     engine.say("is equal to, {0}".format(answer))
                     engine.runAndWait()
@@ -237,12 +237,12 @@ def voiceoperated_calc_click():
                     engine.runAndWait()
                     mainbox.delete(0, END)
                     mainbox.insert(END, answer)
-                    return                  
-                
+                    return 
     except:
-        pass
+        print("error here")
 
     mainbox.insert(0,command)
+
     try:
         answer = eval(mainbox.get())
         engine.say("is equal to, {0}".format(answer))
@@ -292,18 +292,65 @@ def button_clicked(x):
     text = b['text']
 
     if audiocalc_system == True:
-
         if text != '=':
             t= threading.Thread(target=ob.speak,args=(text))
             t.start()
         else:
-            pass        
+            pass   
+
 
     #RUNNING THE OPERATION WHEN = CLICKED
     if text == "=": 
 
         #ERROR HANDLING
         try:
+            if '**' in mainbox.get():
+                messagebox.showerror('Calculator', 'Invalid input')
+                mainbox.delete(0,END)
+                return 
+            if '%' in mainbox.get():
+        
+                ex = mainbox.get()
+                percent,value = ex.split('%')
+                answer = str((float(percent)/100)*float(value))
+                mainbox.delete(0,END)
+                mainbox.insert(0,answer)
+                if audiocalc_system ==  True:
+                    engine = pyttsx3.init()
+                    engine.say('{0} percent of {1} is equal to {2}'.format(percent,value,answer))
+                    engine.runAndWait()
+                return  
+
+            if 'SIN' in mainbox.get():
+                ex = mainbox.get()
+                ex = ex.replace('SIN','')
+                try:
+                    if degree :
+                        torad = str(m.radians(float(ex)))
+                        answer = str(m.sin(float(torad)))
+                        mainbox.delete(0,END)
+                        mainbox.insert(0,answer)
+                        if audiocalc_system ==  True:
+                            engine = pyttsx3.init()
+                            engine.say('Sin {0} is equal to, {1}'.format(ex,answer))
+                            engine.runAndWait()
+                            return
+                        
+
+                    elif radianmode:
+                        answer = str(m.sin(float(ex)))
+                        mainbox.delete(0,END)
+                        mainbox.insert(0,answer)
+                        if audiocalc_system ==  True:
+                            engine = pyttsx3.init()
+                            engine.say('Sin {0} is equal to, {1}'.format(ex,answer))
+                            engine.runAndWait()
+                        return
+                
+                except:
+                    pass
+ 
+
             #STROING EVALUATED ANSWER INSIDE VARIABLE 
             answer = eval(mainbox.get())
             mainbox.delete(0, END)
@@ -315,12 +362,14 @@ def button_clicked(x):
                 engine.runAndWait()
             else:
                 pass
+            
 
             return
         except:
             messagebox.showerror('Calculator', 'Invalid Input')
             mainbox.delete(0, END)
             return
+    
 
     if text == "x":
         #INPUTING * INSTEAD OF X FOR MULTIPLICATION
@@ -352,11 +401,7 @@ def scifi_click(x):
     ex = mainbox.get()
     answer = ''
 
-    if ex == "":
-        messagebox.showerror('Error','Field Blank')
-        return
-    else:
-        pass
+
 
     if text == "√x":
         answer = str(m.sqrt(float(ex)))
@@ -424,7 +469,7 @@ def scifi_click(x):
                 engine.runAndWait() 
             return
 
-    elif text == "TANθ":
+    elif text == "TAN":
         try:
             if degree :
                 torad = str(m.radians(float(ex)))
@@ -452,7 +497,7 @@ def scifi_click(x):
             pass
 
       
-    elif text == "SINθ":
+    elif text == "SIN":
         try:
             if degree :
                 torad = str(m.radians(float(ex)))
@@ -464,21 +509,24 @@ def scifi_click(x):
                     engine.say('Sin {0} is equal to, {1}'.format(ex,answer))
                     engine.runAndWait()
                 return
+                
 
             elif radianmode:
                 answer = str(m.sin(float(ex)))
                 mainbox.delete(0,END)
                 mainbox.insert(0,answer)
+                
                 if audiocalc_system ==  True:
                     engine = pyttsx3.init()
                     engine.say('Sin {0} is equal to, {1}'.format(ex,answer))
                     engine.runAndWait()
                 return
-            return
+         
+           
         except:
             pass
 
-    elif text == "COSθ":
+    elif text == "COS":
         try:
             if degree :
                 torad = str(m.radians(float(ex)))
@@ -513,27 +561,11 @@ def scifi_click(x):
             engine.say('cube root of {0} is equal to, {1}'.format(ex,answer))
             engine.runAndWait()
         return
-    if text == "%":
-      try:
-        ex = mainbox.get()
-        percent,value = ex.split(',')
-        answer = str((float(percent)/100)*float(value))
-        mainbox.delete(0,END)
-        mainbox.insert(0,answer)
-        if audiocalc_system ==  True:
-            engine = pyttsx3.init()
-            engine.say('{0} percent of {1} is equal to {2}'.format(percent,value,answer))
-            engine.runAndWait()
-        return  
-      except:
-        messagebox.showerror('Error','PUT IN "percent,value" format')
-        mainbox.delete(0,END-1)    
-
-
+        
     else:
         pass
     
-    mainbox.insert(END,text)
+    mainbox.insert(END,'{0} '.format(text))
 
 #FUNCTION FOR CLEAR BUTTON
 def clear():
@@ -593,9 +625,9 @@ button_power = Button(scifi_frame , text="x^",width=8 , height=2, bg="#E6B0AA", 
 button_factorial = Button(scifi_frame , text="x!",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
 button_combination= Button(scifi_frame , text="nCr",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
 button_permutation= Button(scifi_frame , text="nPr",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
-button_sin= Button(scifi_frame , text="SINθ",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
-button_cos= Button(scifi_frame , text="COSθ",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
-button_tan= Button(scifi_frame , text="TANθ",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
+button_sin= Button(scifi_frame , text="SIN",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
+button_cos= Button(scifi_frame , text="COS",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
+button_tan= Button(scifi_frame , text="TAN",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
 button_torad= Button(scifi_frame , text="RAD",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
 button_todeg= Button(scifi_frame , text="DEG",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font)
 button_cuberoot= Button(scifi_frame , text="3√",width=8 , height=2, bg="#E6B0AA", relief='raised',font=font) 
@@ -640,7 +672,6 @@ button_cos.grid(row=2,column=1)
 button_tan.grid(row=3,column=1)
 button_todeg.grid(row=5,column=0)
 button_cuberoot.grid(row=5,column=1)
-
 #BINDING BUTTONS TO THEIR RESPECTIVE FUNCTIONS ON RIGHT CLICK
 button_9.bind('<Button-1>' , button_clicked)
 button_8.bind('<Button-1>' , button_clicked)
@@ -663,11 +694,11 @@ button_comma.bind('<Button-1>',button_clicked)
 
 button_percentage.bind('<Button-1>',scifi_click)
 button_squareroot.bind('<Button-1>',scifi_click)
-button_power.bind('<Button-1>' , scifi_click)
-button_permutation.bind('<Button-1>', scifi_click)
+button_power.bind('<Button-1>',scifi_click)
+button_permutation.bind('<Button-1>',scifi_click)
 button_tan.bind('<Button-1>',scifi_click)
 button_cos.bind('<Button-1>',scifi_click)
-button_sin.bind('<Button-1>' ,scifi_click)
+button_sin.bind('<Button-1>',scifi_click)
 button_factorial.bind('<Button-1>',scifi_click)
 button_combination.bind('<Button-1>',scifi_click)
 button_cuberoot.bind('<Button-1>',scifi_click)
@@ -679,4 +710,3 @@ mainbox.bind('<Return>', enterbutton)
 
 #RUNNING THE WINDOW
 root.mainloop()
-
